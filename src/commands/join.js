@@ -58,7 +58,7 @@ module.exports = {
 
       await interaction.editReply(
         `✅ Đã tham gia và kích hoạt chế độ **Treo 24/7** trong kênh **#${targetChannel.name}**!\n` +
-        `💡 *Bot sẽ luôn ở trong phòng voice này và sẵn sàng nhận lệnh \`/play\` bất cứ lúc nào.*`
+        `💡 *Trạm điều khiển đã sẵn sàng bên dưới. Thành viên có thể bấm các nút trực tiếp để mở nhạc hoặc chọn playlist mà không cần gõ lệnh!*`
       );
     } catch (error) {
       // Roll back the persisted state if we never managed to join.

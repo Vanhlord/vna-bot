@@ -319,7 +319,7 @@ class EmbedBuilderUtil {
 
   /**
    * Controller row for the currently playing track.
-   * The skip button is only useful when another track is waiting.
+   * Includes Stop, Skip, Add Track (Popup Modal), and View Queue.
    */
   static createControllerRow(queue = null) {
     const stopBtn = new ButtonBuilder()
@@ -328,18 +328,70 @@ class EmbedBuilderUtil {
       .setEmoji("⏹️")
       .setStyle(ButtonStyle.Danger);
 
-    const controls = [stopBtn];
-    if (queue?.tracks?.length > 0) {
-      controls.push(
-        new ButtonBuilder()
-          .setCustomId("music_skip")
-          .setLabel("Bài tiếp")
-          .setEmoji("⏭️")
-          .setStyle(ButtonStyle.Secondary)
-      );
-    }
+    const skipBtn = new ButtonBuilder()
+      .setCustomId("music_skip")
+      .setLabel("Bài tiếp")
+      .setEmoji("⏭️")
+      .setStyle(ButtonStyle.Secondary);
 
-    return new ActionRowBuilder().addComponents(controls);
+    const addQueueBtn = new ButtonBuilder()
+      .setCustomId("music_btn_open_modal")
+      .setLabel("Thêm bài")
+      .setEmoji("➕")
+      .setStyle(ButtonStyle.Success);
+
+    const viewQueueBtn = new ButtonBuilder()
+      .setCustomId("music_btn_view_queue")
+      .setLabel("Hàng đợi")
+      .setEmoji("📜")
+      .setStyle(ButtonStyle.Primary);
+
+    return new ActionRowBuilder().addComponents(stopBtn, skipBtn, addQueueBtn, viewQueueBtn);
+  }
+
+  /**
+   * Main Standby Controller Embed shown when bot is in voice waiting for music
+   */
+  static createMainControllerEmbed(voiceChannel = null) {
+    return new EmbedBuilder()
+      .setColor(0x5865f2)
+      .setTitle("🎵 Trạm Điều Khiển Âm Nhạc • AB-VNA")
+      .setDescription(
+        "Chào mừng bạn đến với phòng nghe nhạc!\n" +
+        "Bấm các nút bên dưới để mở bài hát, chọn playlist hoặc thêm nhạc vào danh sách mà không cần gõ lệnh."
+      )
+      .addFields(
+        { name: "Trạng thái", value: "🟢 Đang chờ phát nhạc", inline: true },
+        { name: "Kênh thoại", value: voiceChannel ? `🔊 <#${voiceChannel.id}>` : "Chưa kết nối", inline: true },
+        { name: "Nguồn hỗ trợ", value: "YouTube • Spotify • SoundCloud", inline: true }
+      )
+      .setFooter({ text: "AB-VNA Music • Điều khiển 1 chạm bằng nút bấm & popup" })
+      .setTimestamp();
+  }
+
+  /**
+   * Action Row for Standby Controller: Mở bài hát, Chọn playlist, Thêm vào playlist
+   */
+  static createMainControllerRow() {
+    const openModalBtn = new ButtonBuilder()
+      .setCustomId("music_btn_open_modal")
+      .setLabel("Mở Bài Hát")
+      .setEmoji("🎵")
+      .setStyle(ButtonStyle.Success);
+
+    const selectPlBtn = new ButtonBuilder()
+      .setCustomId("music_btn_select_playlist")
+      .setLabel("Chọn Playlist")
+      .setEmoji("📑")
+      .setStyle(ButtonStyle.Primary);
+
+    const addPlBtn = new ButtonBuilder()
+      .setCustomId("music_btn_add_to_playlist")
+      .setLabel("Thêm Vào Playlist")
+      .setEmoji("➕")
+      .setStyle(ButtonStyle.Secondary);
+
+    return new ActionRowBuilder().addComponents(openModalBtn, selectPlBtn, addPlBtn);
   }
 
   /**

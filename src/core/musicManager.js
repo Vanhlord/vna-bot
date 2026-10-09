@@ -130,6 +130,11 @@ class MusicManager {
       connection.subscribe(queue.player);
       this.reconnectAttempts.delete(guildId);
 
+      // Gửi Trạm Điều Khiển Main nếu bot tham gia phòng mà chưa có bài phát
+      if (textChannel && !queue.isPlaying && !queue.currentTrack) {
+        this.sendMainController(guildId).catch(() => null);
+      }
+
       return queue;
     } finally {
       queue.isJoining = false;
@@ -220,23 +225,10 @@ class MusicManager {
   async closeCurrentTrackMessage(queue, track, context, nextTrack) {
     const message = queue.currentTrackMessage;
     queue.currentTrackMessage = null;
-    if (!message || !track) return;
+    if (!message) return;
 
-    let embed;
-    if (context.reason === "skipped") {
-      embed = EmbedBuilderUtil.createSkippedEmbed(track, {
-        skippedBy: context.actor,
-        nextTrack,
-      });
-    } else if (context.reason === "error") {
-      embed = EmbedBuilderUtil.createPlaybackErrorEmbed(track, context.errorMessage);
-    } else {
-      embed = EmbedBuilderUtil.createTrackEndedEmbed(track, { nextTrack });
-    }
-
-    await message.edit({ embeds: [embed], components: [] }).catch((error) => {
-      discordErrorReporter.report("EMBED", error, { label: "close-previous-track" });
-    });
+    // Tự động xóa embed cũ của bài trước khi chuyển sang bài mới để không làm trôi/rác kênh chat
+    await message.delete().catch(() => null);
   }
 
   async createTransitionMessage(queue, track, options = {}) {
@@ -321,9 +313,14 @@ class MusicManager {
       const embed = EmbedBuilderUtil.createNowPlayingEmbed(queue);
       const row = EmbedBuilderUtil.createControllerRow(queue);
 
+      // Tự động xóa tin nhắn cũ (nếu có) và gửi tin nhắn mới xuống cuối kênh chat
       if (queue.currentTrackMessage) {
-        await queue.currentTrackMessage.edit({ embeds: [embed], components: [row] }).catch(() => null);
-      } else if (queue.textChannel) {
+        const oldMsg = queue.currentTrackMessage;
+        queue.currentTrackMessage = null;
+        await oldMsg.delete().catch(() => null);
+      }
+
+      if (queue.textChannel) {
         queue.currentTrackMessage = await queue.textChannel.send({
           embeds: [embed],
           components: [row],
@@ -388,7 +385,11 @@ class MusicManager {
       }
 
       queue.currentTrack = null;
-      queue.currentTrackMessage = null;
+      if (queue.currentTrackMessage) {
+        const oldMsg = queue.currentTrackMessage;
+        queue.currentTrackMessage = null;
+        await oldMsg.delete().catch(() => null);
+      }
       queue.resource = null;
       queue.isPlaying = false;
 
@@ -397,6 +398,11 @@ class MusicManager {
       // batch arrives (or start the normal idle timer once loading is done).
       if (queue.activePlaylistLoads > 0) {
         return false;
+      }
+
+      // Hàng đợi đã phát xong, nếu bot vẫn ở trong voice thì gửi lại Trạm Điều Khiển Main ở cuối chat
+      if (queue.voiceChannel && queue.textChannel) {
+        await this.sendMainController(guildId).catch(() => null);
       }
 
       this.startIdleTimer(guildId);
@@ -436,18 +442,15 @@ class MusicManager {
     queue.playbackStartTime = 0;
     if (queue.player) queue.player.stop();
 
-    if (currentMessage && currentTrack) {
-      const stoppedEmbed = EmbedBuilderUtil.createStoppedEmbed(currentTrack, {
-        stoppedBy,
-        clearedCount,
-      });
-      await currentMessage.edit({ embeds: [stoppedEmbed], components: [] }).catch((error) => {
-        discordErrorReporter.report("EMBED", error, { label: "stop-message" });
-      });
+    if (currentMessage) {
+      await currentMessage.delete().catch(() => null);
     }
 
     if (leaveVoice && !this.persist247.is247(guildId)) {
       this.destroyQueue(guildId);
+    } else {
+      // Nếu bot vẫn ở lại voice (24/7 hoặc chưa rời), gửi lại Trạm Điều Khiển Main
+      await this.sendMainController(guildId).catch(() => null);
     }
     return true;
   }
@@ -669,6 +672,25 @@ class MusicManager {
     await this.joinVoice(voiceChannel, textChannel);
     console.log(`[24/7] Đã kết nối lại kênh voice #${voiceChannel.name}`);
     return true;
+  }
+
+  async sendMainController(guildId) {
+    const queue = this.getQueue(guildId);
+    if (!queue || !queue.textChannel) return null;
+
+    if (queue.currentTrackMessage) {
+      const old = queue.currentTrackMessage;
+      queue.currentTrackMessage = null;
+      await old.delete().catch(() => null);
+    }
+
+    const embed = EmbedBuilderUtil.createMainControllerEmbed(queue.voiceChannel);
+    const row = EmbedBuilderUtil.createMainControllerRow();
+    queue.currentTrackMessage = await queue.textChannel.send({
+      embeds: [embed],
+      components: [row],
+    }).catch(() => null);
+    return queue.currentTrackMessage;
   }
 }
 

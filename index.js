@@ -173,8 +173,8 @@ client.on("interactionCreate", async (interaction) => {
       return;
     }
 
-    // 6.3. Interactive Controller Buttons
-    if (interaction.isButton()) {
+    // 6.3. Interactive Controller Components (Buttons, Select Menus, Modals)
+    if (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) {
       await handleMusicButton(interaction, musicManager);
       return;
     }
