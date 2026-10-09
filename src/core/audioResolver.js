@@ -14,6 +14,25 @@ const cookiesDir = path.resolve(__dirname, "../../cookies");
 const cookiesPath = path.resolve(cookiesDir, "cookies.txt");
 const spotifyYoutubeCache = new Map();
 
+function parseCookiesToHeaderString(content) {
+  if (!content) return "";
+  const pairs = [];
+  const lines = content.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const parts = trimmed.split(/\t+/);
+    if (parts.length >= 7) {
+      const name = parts[5].trim();
+      const value = parts[6].trim();
+      if (name && value) {
+        pairs.push(`${name}=${value}`);
+      }
+    }
+  }
+  return pairs.length > 0 ? pairs.join("; ") : content.replace(/[\r\n\t]/g, " ").trim();
+}
+
 // Tự động nạp YouTube cookies (nếu có từ file cookies.txt hoặc biến môi trường YOUTUBE_COOKIE)
 async function initYouTubeCookies() {
   try {
@@ -30,12 +49,15 @@ async function initYouTubeCookies() {
     if (fs.existsSync(cookiesPath)) {
       const cookieContent = fs.readFileSync(cookiesPath, "utf8").trim();
       if (cookieContent) {
-        await play.setToken({
-          youtube: { cookie: cookieContent },
-        }).catch((e) => {
-          console.warn(`[AUDIO-RESOLVER] play.setToken warning: ${e.message}`);
-        });
-        console.log(`[AUDIO-RESOLVER] 🍪 Đã áp dụng YouTube cookies cho play-dl!`);
+        const headerCookie = parseCookiesToHeaderString(cookieContent);
+        if (headerCookie) {
+          await play.setToken({
+            youtube: { cookie: headerCookie },
+          }).catch((e) => {
+            console.warn(`[AUDIO-RESOLVER] play.setToken warning: ${e.message}`);
+          });
+          console.log(`[AUDIO-RESOLVER] 🍪 Đã áp dụng YouTube cookies cho play-dl!`);
+        }
       }
     }
   } catch (err) {
@@ -179,6 +201,7 @@ class AudioResolver {
       "--ignore-errors",
       "--no-warnings",
       "--no-check-certificates",
+      "--extractor-args", "youtube:player_client=ios,tv,web",
     ];
 
     if (fs.existsSync(cookiesPath)) args.push("--cookies", cookiesPath);
@@ -478,24 +501,29 @@ class AudioResolver {
   }
 
   /**
-   * Helper: Execute yt-dlp to dump JSON info
+   * Helper: Execute yt-dlp to dump JSON info with automatic bot-block bypass
    */
-  static async extractInfoWithYtDlp(targetUrl) {
+  static async extractInfoWithYtDlp(targetUrl, retryCount = 0) {
     const binPath = await YtDlpManager.getBinaryPath();
+    const isSearch = targetUrl.startsWith("ytsearch");
+    const useCookies = !isSearch && retryCount === 0 && fs.existsSync(cookiesPath);
+
     const args = [
       targetUrl,
       "--dump-single-json",
-      "--format", "bestaudio/best",
       "--no-warnings",
       "--no-check-certificates",
       "--prefer-free-formats",
-      "--extractor-args", "youtube:player_client=android,mweb,web",
     ];
 
-    if (fs.existsSync(cookiesPath)) {
+    if (useCookies) {
       args.push("--cookies", cookiesPath);
-    } else if (process.env.YOUTUBE_COOKIE) {
+    } else if (!isSearch && process.env.YOUTUBE_COOKIE && retryCount === 0) {
       args.push("--add-header", `Cookie: ${process.env.YOUTUBE_COOKIE}`);
+    }
+
+    if (retryCount > 0) {
+      args.push("--extractor-args", "youtube:player_client=ios,tv");
     }
 
     return new Promise((resolve) => {
@@ -511,7 +539,7 @@ class AudioResolver {
         errorOutput += chunk;
       });
 
-      proc.on("close", (code) => {
+      proc.on("close", async (code) => {
         if (code === 0 && output.trim()) {
           try {
             const data = JSON.parse(output);
@@ -521,6 +549,11 @@ class AudioResolver {
         }
         if (code !== 0 && errorOutput.trim()) {
           console.warn(`[YT-DLP ERROR]: code ${code} | ${errorOutput.trim().split("\n")[0].slice(0, 250)}`);
+          if (retryCount === 0) {
+            console.warn(`[YT-DLP] 🛡️ Tự động thử lại chế độ TV/iOS bypass không dùng cookies...`);
+            const retryResult = await AudioResolver.extractInfoWithYtDlp(targetUrl, 1);
+            return resolve(retryResult);
+          }
         }
         resolve(null);
       });
