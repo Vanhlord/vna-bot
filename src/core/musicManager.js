@@ -650,7 +650,13 @@ class MusicManager {
         }
 
         await this.joinVoice(voiceChannel, textChannel);
-        console.log(`[24/7] Đã tự động kết nối lại kênh voice #${voiceChannel.name} trên server "${guild.name}"`);
+
+        // Khi khởi động lại bot: Quét xóa sạch các Embed Main cũ bị bỏ lại và gửi Embed Main mới toanh
+        if (textChannel) {
+          await this.sendMainController(guildId).catch(() => null);
+        }
+
+        console.log(`[24/7] Đã tự động kết nối lại kênh voice #${voiceChannel.name} trên server "${guild.name}" và làm mới Trạm Điều Khiển`);
       } catch (err) {
         console.error(`[24/7 RECONNECT ERROR for guild ${guildId}]: ${err.message}`);
         this.schedule247Reconnect(guildId);
@@ -670,8 +676,50 @@ class MusicManager {
       ? await guild.channels.fetch(data.textChannelId).catch(() => null)
       : null;
     await this.joinVoice(voiceChannel, textChannel);
+    if (textChannel) {
+      await this.sendMainController(guildId).catch(() => null);
+    }
     console.log(`[24/7] Đã kết nối lại kênh voice #${voiceChannel.name}`);
     return true;
+  }
+
+  /**
+   * Quét và dọn sạch các tin nhắn/embed điều khiển cũ của bot trong kênh chat
+   * (Đặc biệt hiệu quả khi bot khởi động lại để không bị trùng lặp các embed cũ)
+   */
+  async cleanupOldControllerMessages(textChannel) {
+    if (!textChannel || typeof textChannel.messages?.fetch !== "function") return;
+    try {
+      const fetched = await textChannel.messages.fetch({ limit: 30 }).catch(() => null);
+      if (!fetched || fetched.size === 0) return;
+
+      const botId = this.client.user?.id;
+      const oldMessagesToDelete = fetched.filter((msg) => {
+        if (msg.author.id !== botId) return false;
+        const hasMusicEmbed = msg.embeds?.some(
+          (e) =>
+            (e.title &&
+              (e.title.includes("Trạm Điều Khiển") ||
+                e.title.includes("Đang Phát") ||
+                e.title.includes("Chuẩn Bị Phát") ||
+                e.title.includes("Đang Xử Lý") ||
+                e.title.includes("Chuyển Sang Bài") ||
+                e.title.includes("Nhạc Đã Được Dừng") ||
+                e.title.includes("Bài Hát Đã Kết Thúc"))) ||
+            (e.footer?.text && e.footer.text.includes("AB-VNA"))
+        );
+        const hasMusicButtons = msg.components?.some((row) =>
+          row.components?.some((comp) => comp.customId?.startsWith("music_"))
+        );
+        return hasMusicEmbed || hasMusicButtons;
+      });
+
+      for (const [, oldMsg] of oldMessagesToDelete) {
+        await oldMsg.delete().catch(() => null);
+      }
+    } catch (err) {
+      console.warn(`[CLEANUP] Không thể dọn dẹp tin nhắn cũ: ${err.message}`);
+    }
   }
 
   async sendMainController(guildId) {
@@ -683,6 +731,9 @@ class MusicManager {
       queue.currentTrackMessage = null;
       await old.delete().catch(() => null);
     }
+
+    // Tự động quét và xóa sạch các embed điều khiển cũ (kể cả từ phiên chạy trước khi restart)
+    await this.cleanupOldControllerMessages(queue.textChannel);
 
     const embed = EmbedBuilderUtil.createMainControllerEmbed(queue.voiceChannel);
     const row = EmbedBuilderUtil.createMainControllerRow();
