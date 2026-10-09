@@ -228,7 +228,24 @@ class MusicManager {
     if (!message) return;
 
     // Tự động xóa embed cũ của bài trước khi chuyển sang bài mới để không làm trôi/rác kênh chat
-    await message.delete().catch(() => null);
+    if (typeof message.delete === "function") {
+      await message.delete().catch(() => null);
+    } else if (typeof message.edit === "function") {
+      let embed;
+      if (context?.reason === "skipped") {
+        embed = EmbedBuilderUtil.createSkippedEmbed(track, {
+          skippedBy: context.actor,
+          nextTrack,
+        });
+      } else if (context?.reason === "error") {
+        embed = EmbedBuilderUtil.createPlaybackErrorEmbed(track, context.errorMessage);
+      } else {
+        embed = EmbedBuilderUtil.createTrackEndedEmbed(track, { nextTrack });
+      }
+      await message.edit({ embeds: [embed], components: [] }).catch((error) => {
+        discordErrorReporter.report("EMBED", error, { label: "close-previous-track" });
+      });
+    }
   }
 
   async createTransitionMessage(queue, track, options = {}) {
@@ -317,7 +334,9 @@ class MusicManager {
       if (queue.currentTrackMessage) {
         const oldMsg = queue.currentTrackMessage;
         queue.currentTrackMessage = null;
-        await oldMsg.delete().catch(() => null);
+        if (typeof oldMsg.delete === "function") {
+          await oldMsg.delete().catch(() => null);
+        }
       }
 
       if (queue.textChannel) {
@@ -388,7 +407,12 @@ class MusicManager {
       if (queue.currentTrackMessage) {
         const oldMsg = queue.currentTrackMessage;
         queue.currentTrackMessage = null;
-        await oldMsg.delete().catch(() => null);
+        if (typeof oldMsg.delete === "function") {
+          await oldMsg.delete().catch(() => null);
+        } else if (typeof oldMsg.edit === "function") {
+          const endedEmbed = EmbedBuilderUtil.createQueueEndedEmbed();
+          await oldMsg.edit({ embeds: [endedEmbed], components: [] }).catch(() => null);
+        }
       }
       queue.resource = null;
       queue.isPlaying = false;
@@ -443,7 +467,17 @@ class MusicManager {
     if (queue.player) queue.player.stop();
 
     if (currentMessage) {
-      await currentMessage.delete().catch(() => null);
+      if (typeof currentMessage.delete === "function") {
+        await currentMessage.delete().catch(() => null);
+      } else if (typeof currentMessage.edit === "function" && currentTrack) {
+        const stoppedEmbed = EmbedBuilderUtil.createStoppedEmbed(currentTrack, {
+          stoppedBy,
+          clearedCount,
+        });
+        await currentMessage.edit({ embeds: [stoppedEmbed], components: [] }).catch((error) => {
+          discordErrorReporter.report("EMBED", error, { label: "stop-message" });
+        });
+      }
     }
 
     if (leaveVoice && !this.persist247.is247(guildId)) {
@@ -729,7 +763,9 @@ class MusicManager {
     if (queue.currentTrackMessage) {
       const old = queue.currentTrackMessage;
       queue.currentTrackMessage = null;
-      await old.delete().catch(() => null);
+      if (typeof old.delete === "function") {
+        await old.delete().catch(() => null);
+      }
     }
 
     // Tự động quét và xóa sạch các embed điều khiển cũ (kể cả từ phiên chạy trước khi restart)
