@@ -1,8 +1,19 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-// Thư mục musiclist dùng chung ở thư mục gốc của dự án (nếu chạy local)
-const MUSICLIST_DIR = path.resolve(__dirname, "../../../musiclist");
+// Tự động nhận diện thư mục musiclist (cả khi chạy local lẫn trên hosting độc lập)
+function resolveMusiclistDir() {
+  const candidates = [
+    path.resolve(__dirname, "../../musiclist"),
+    path.resolve(__dirname, "../../../musiclist"),
+    path.resolve(process.cwd(), "musiclist"),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(dir)) return dir;
+  }
+  return path.resolve(__dirname, "../../musiclist");
+}
+const MUSICLIST_DIR = resolveMusiclistDir();
 const MAIN_BOT_API_URL = (process.env.MAIN_BOT_API_URL || "https://vnasss.com").replace(/\/+$/, "");
 
 // Bộ nhớ đệm danh sách phát khi chạy trên Hosting độc lập
@@ -19,7 +30,15 @@ async function syncPlaylistsFromMainBot() {
     if (!res.ok) return;
     const data = await res.json();
     if (data.success && Array.isArray(data.playlists)) {
-      remotePlaylistCache.lists = data.playlists;
+      remotePlaylistCache.lists = data.playlists.map((pl) => {
+        const count = Number(pl.trackCount ?? pl.count ?? pl.totalTracks ?? 0);
+        return {
+          ...pl,
+          count,
+          trackCount: count,
+          totalTracks: count,
+        };
+      });
       for (const pl of data.playlists) {
         try {
           const detRes = await fetch(`${MAIN_BOT_API_URL}/api/playlists/${encodeURIComponent(pl.name)}`, {
@@ -292,10 +311,13 @@ function listPlaylists() {
         return files.map((fileName) => {
           const name = fileName.slice(0, -4);
           const tracks = getPlaylistTracks(name);
+          const count = tracks.length;
           return {
             name,
             fileName,
-            trackCount: tracks.length,
+            count,
+            trackCount: count,
+            totalTracks: count,
           };
         });
       }

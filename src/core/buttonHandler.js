@@ -183,12 +183,15 @@ async function handleMusicInteraction(interaction, musicManager) {
         .setCustomId("music_select_playlist_to_play")
         .setPlaceholder("📂 Chọn một playlist để phát...")
         .addOptions(
-          playlists.slice(0, 25).map((pl) => ({
-            label: pl.name.slice(0, 100),
-            description: `${pl.count || 0} bài hát`,
-            value: pl.name,
-            emoji: "📂",
-          }))
+          playlists.slice(0, 25).map((pl) => {
+            const count = Number(pl.trackCount ?? pl.count ?? pl.totalTracks ?? (Array.isArray(pl.tracks) ? pl.tracks.length : 0));
+            return {
+              label: pl.name.slice(0, 100),
+              description: `${count} bài hát`,
+              value: pl.name,
+              emoji: "📂",
+            };
+          })
         );
 
       return interaction.reply({
@@ -234,12 +237,15 @@ async function handleMusicInteraction(interaction, musicManager) {
         .setCustomId("music_select_playlist_to_add")
         .setPlaceholder("➕ Chọn playlist muốn thêm bài hát vào...")
         .addOptions(
-          playlists.slice(0, 25).map((pl) => ({
-            label: pl.name.slice(0, 100),
-            description: `${pl.count || 0} bài hát`,
-            value: pl.name,
-            emoji: "➕",
-          }))
+          playlists.slice(0, 25).map((pl) => {
+            const count = Number(pl.trackCount ?? pl.count ?? pl.totalTracks ?? (Array.isArray(pl.tracks) ? pl.tracks.length : 0));
+            return {
+              label: pl.name.slice(0, 100),
+              description: `${count} bài hát`,
+              value: pl.name,
+              emoji: "➕",
+            };
+          })
         );
 
       return interaction.reply({
