@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= botName %> | Trang Chủ Điều Khiển & Âm Nhạc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060913;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --bg-card-hover: rgba(22, 32, 58, 0.85);
+            --bg-input: rgba(10, 15, 29, 0.85);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(99, 102, 241, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #64748b;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --secondary: #a855f7;
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-xl: 22px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.16) 0px, transparent 55%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 55%),
+                radial-gradient(at 50% 25%, rgba(168, 85, 247, 0.08) 0px, transparent 65%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1420px;
+            margin: 0 auto;
+        }
+
+        /* ----------------------------------------------------
+           HEADER & NAV
+        ---------------------------------------------------- */
+        header {
+            background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 18px 28px;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 24px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .bot-avatar-wrap {
+            position: relative;
+        }
+
+        .bot-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+            display: block;
+        }
+
+        .status-dot-pulse {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 14px;
+            height: 14px;
+            background: var(--success);
+            border: 2px solid #0f172a;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .brand-meta h1 {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-meta p {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .nav-shortcuts {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-chip:hover {
+            color: #ffffff;
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* ----------------------------------------------------
+           SECTION TITLES & CARDS
+        ---------------------------------------------------- */
+        .section-anchor {
+            scroll-margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-badge-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-num {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 2px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            margin-bottom: 24px;
+            transition: border-color 0.25s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 980px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* ----------------------------------------------------
+           SECTION 1: VOICE CHANNEL & PLAYER (ƯU TIÊN LÊN ĐẦU)
+        ---------------------------------------------------- */
+        .voice-hub-bar {
+            background: rgba(10, 15, 29, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-select, .form-input, .form-textarea {
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--success-glow);
+        }
+
+        .btn-success:hover { transform: translateY(-2px); }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #f87171;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-sm {
+            padding: 7px 13px;
+            font-size: 12.5px;
+            border-radius: 9px;
+        }
+
+        /* Now Playing Hero Card */
+        .now-playing-hero {
+            background: linear-gradient(145deg, rgba(30, 27, 75, 0.7), rgba(15, 23, 42, 0.85));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 26px;
+            display: flex;
+            gap: 26px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .track-cover-wrap {
+            position: relative;
+            flex-shrink: 0;
+            width: 140px;
+            height: 140px;
+        }
+
+        .track-cover-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+            object-fit: cover;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vinyl-disc {
+            position: absolute;
+            top: 5px;
+            left: 25px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #222 25%, #050505 60%, #151515 90%);
+            border: 3px solid #333;
+            z-index: -1;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: transform 0.5s ease;
+        }
+
+        .playing .vinyl-disc {
+            animation: rotateVinyl 6s linear infinite;
+        }
+
+        @keyframes rotateVinyl {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .track-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .badge-live {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        .track-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-times {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.08);
+        }
+
+        .ctrl-btn.play-main {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 4px 15px var(--primary-glow);
+            font-size: 19px;
+        }
+
+        /* Queue List */
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .queue-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .queue-table td {
+            padding: 12px 14px;
+            font-size: 13.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+        }
+
+        .queue-index {
+            font-family: var(--font-mono);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* ----------------------------------------------------
+           SECTION 2: PLAYLIST CREATOR & STUDIO
+        ---------------------------------------------------- */
+        .playlist-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .playlist-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .playlist-name {
+            font-size: 16.5px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .playlist-meta {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .playlist-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ----------------------------------------------------
+           SECTION 3: INSTRUCTIONS & GUIDE
+        ---------------------------------------------------- */
+        .guide-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            transition: all 0.2s ease;
+        }
+
+        .guide-card:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            background: rgba(22, 32, 58, 0.6);
+        }
+
+        .guide-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .guide-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .guide-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .code-tag {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+        }
+
+        /* ----------------------------------------------------
+           TOAST NOTIFICATIONS
+        ---------------------------------------------------- */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--primary); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.active { display: flex; }
+
+        .modal-content {
+            background: #0f172a;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 580px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 14px; }
+            header { padding: 16px; }
+            .now-playing-hero { flex-direction: column; text-align: center; }
+            .track-details { width: 100%; }
+            .player-controls { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ====================================================
+         HEADER BRAND & QUICK NAVIGATION
+    ==================================================== -->
+    <header>
+        <div class="header-brand">
+            <div class="bot-avatar-wrap">
+                <img class="bot-avatar-img" src="<%= botAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="Bot Avatar">
+                <div class="status-dot-pulse" title="Bot Online"></div>
+            </div>
+            <div class="brand-meta">
+                <h1>🎵 <%= botName %> <span style="font-size: 13px; font-weight: 700; background: rgba(99, 102, 241, 0.25); color: #818cf8; padding: 2px 8px; border-radius: 6px;">Trang Chủ Main</span></h1>
+                <p>Cổng Điều Khiển Âm Nhạc • Kênh Voice • Tạo Playlist • Hướng Dẫn</p>
+            </div>
+        </div>
+
+        <div class="nav-shortcuts">
+            <a href="#sec-voice" class="nav-chip"><span>🔊</span> Kênh Voice & Nghe Nhạc</a>
+            <a href="#sec-playlist" class="nav-chip"><span>📚</span> Tạo & Quản Lý Playlist</a>
+            <a href="#sec-guide" class="nav-chip"><span>📖</span> Hướng Dẫn Sử Dụng</a>
+            <a href="#sec-embed" class="nav-chip"><span>📨</span> Soạn Tin Embed</a>
+        </div>
+    </header>
+
+    <!-- ====================================================
+         PHẦN 1: QUẢN LÝ KÊNH VOICE & PHÁT NHẠC (ĐẶT LÊN ĐẦU)
+    ==================================================== -->
+    <div id="sec-voice" class="section-anchor">
+        <div class="section-header">
+            <div class="section-badge-title">
+                <div class="badge-num">1</div>
+                <div>
+                    <h2 class="section-title">🔊 Kênh Voice & Điều Khiển Phát Nhạc</h2>
+                    <p class="section-sub">Chọn phòng voice, cho bot tham gia, điều khiển bài hát trực tiếp hoặc bật treo phòng 24/7</p>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-ghost btn-sm" onclick="fetchLiveState()">🔄 Làm Mới Trạng Thái</button>
+            </div>
+        </div>
+
+        <!-- Voice Selector & Action Bar -->
+        <div class="card" style="padding: 20px;">
+            <div class="voice-hub-bar" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div>
+                        <label class="form-label" style="margin-bottom: 4px;">Máy Chủ (Server Discord):</label>
+                        <select id="player-guild-select" class="form-select" style="min-width: 250px;" onchange="onGuildSelectChange()">
+                            <% guilds.forEach((g) => { %>
+                                <option value="<%= g.id %>" data-channels='<%= JSON.stringify(g.voiceChannels) %>' data-247="<%= g.is247 %>">
+                                    <%= g.name %> (<%= g.memberCount %> mem) <%= g.is247 ? '• 🔒 24/7' : '' %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label" style="margin-bottom: 4px;">Phòng Voice Cần Điều Khiển:</label>
+                        <select id="player-voice-select" class="form-select" style="min-width: 230px;">
+                            <!-- Injected by JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-success btn-sm" onclick="joinSelectedVoice()">🔊 Bot Vào Voice</button>
+                    <button class="btn btn-danger btn-sm" onclick="leaveSelectedVoice()">👋 Bot Rời Phòng</button>
+                    <button id="btn-toggle-247-top" class="btn btn-primary btn-sm" onclick="toggle247FromVoiceHub()">🔒 Bật Treo 24/7</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Player & Queue Container -->
+        <div class="grid-2">
+            <!-- Left: Now Playing Hero Card & Quick Play -->
+            <div>
+                <!-- Now Playing Card -->
+                <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 20px;">
+                    <div id="now-playing-box" class="now-playing-hero">
+                        <div class="track-cover-wrap">
+                            <div class="vinyl-disc"></div>
+                            <img id="np-cover" class="track-cover-img" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop" alt="Cover">
+                        </div>
+
+                        <div class="track-details">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                <span id="np-badge" class="badge-live">🟢 ĐANG PHÁT</span>
+                                <span id="np-loop-badge" style="font-size: 11px; color: var(--text-muted); font-weight: 700;">LẶP: TẮT</span>
+                            </div>
+                            <div id="np-title" class="track-title">Chưa có bài hát nào đang phát</div>
+                            <div id="np-artist" class="track-artist">Chọn server & kênh voice để mở bài mới</div>
+
+                            <!-- Progress Bar -->
+                            <div class="progress-bar-bg">
+                                <div id="np-progress-fill" class="progress-bar-fill"></div>
+                            </div>
+                            <div class="progress-times">
+                                <span id="np-time-current">00:00</span>
+                                <span id="np-time-total">00:00</span>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="player-controls">
+                                <button class="ctrl-btn" title="Xáo trộn (Shuffle)" onclick="controlMusic('shuffle')">🔀</button>
+                                <button id="ctrl-play-btn" class="ctrl-btn play-main" title="Tạm dừng / Tiếp tục" onclick="togglePlayPause()">⏸️</button>
+                                <button class="ctrl-btn" title="Bỏ qua (Skip)" onclick="controlMusic('skip')">⏭️</button>
+                                <button class="ctrl-btn" title="Dừng hẳn (Stop)" onclick="controlMusic('stop')">⏹️</button>
+                                <button id="ctrl-loop-btn" class="ctrl-btn" title="Chế độ lặp" onclick="cycleLoopMode()">🔁</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Play Form -->
+                <div class="card">
+                    <div style="font-weight: 800; font-size: 16px; margin-bottom: 6px;">▶️ Phát Nhạc Nhanh Vào Kênh Voice</div>
+                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+                        Nhập tên bài hát hoặc link YouTube / Spotify. Bot sẽ lập tức vào phòng voice đã chọn và phát!
+                    </p>
+                    <form onsubmit="handleQuickPlay(event)">
+                        <div style="display: flex; gap: 10px;">
+                            <input id="quick-play-input" type="text" class="form-input" placeholder="Tên bài hát, link YouTube hoặc Spotify..." required>
+                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Phát Ngay ▶️</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Queue Table -->
+            <div>
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-weight: 800; font-size: 16px;">
+                            📜 Hàng Đợi Bài Hát (<span id="queue-count">0</span> bài)
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="clearQueue()">🗑️ Xóa Hết</button>
+                    </div>
+
+                    <div style="flex: 1; max-height: 400px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+                        <table class="queue-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45px;">STT</th>
+                                    <th>Bài Hát</th>
+                                    <th>Thời lượng</th>
+                                    <th style="width: 45px;">Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queue-tbody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-sub); padding: 30px;">
+                                        Hàng đợi trống. Nhập bài hát để phát tiếp nối!
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         PHẦN 2: TẠO & QUẢN LÝ PLAYLIST ("bên trong có phần tạo playlist")
+    ==================================================== -->
+    <div id="sec-playlist" class="section-anchor">
+        <div class="section-header">
+            <div class="section-badge-title">
+                <div class="badge-num">2</div>
+                <div>
+                    <h2 class="section-title">📚 Tạo & Quản Lý Danh Sách Phát (Playlist Studio)</h2>
+                    <p class="section-sub">Tạo danh sách nhạc cá nhân, dán hàng loạt bài hát và phát thẳng vào phòng voice</p>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="openCreatePlaylistModal()">
+                    ➕ Tạo Playlist Mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Playlist Creator Box -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(30, 27, 75, 0.4), rgba(15, 23, 42, 0.8));">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <div style="font-size: 16.5px; font-weight: 800; color: #fff;">✨ Tạo Danh Sách Nhạc Mới Ngay Tại Đây:</div>
+                    <p style="color: var(--text-muted); font-size: 13px; margin-top: 2px;">
+                        Đặt tên playlist ngắn gọn (ví dụ: <code>nhac_chill</code>, <code>gaming_top</code>, <code>edm_remix</code>).
+                    </p>
+                </div>
+                <form onsubmit="handleInlineCreatePlaylist(event)" style="display: flex; gap: 10px; width: 100%; max-width: 480px;">
+                    <input id="inline-pl-name" type="text" class="form-input" placeholder="Nhập tên playlist mới..." required>
+                    <button type="submit" class="btn btn-success" style="white-space: nowrap;">Tạo Ngay ➕</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Playlists Cards Grid -->
+        <div class="card">
+            <div style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">📂 Các Playlist Đang Có Trong Hệ Thống:</div>
+            <div id="playlists-grid" class="grid-3">
+                <% if (playlists.length === 0) { %>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-sub);">
+                        Chưa có danh sách nhạc nào! Hãy nhập tên ở ô phía trên để tạo playlist đầu tiên.
+                    </div>
+                <% } else { %>
+                    <% playlists.forEach((pl) => { %>
+                        <div class="playlist-card" onclick="loadPlaylistDetails('<%= pl.name %>')">
+                            <div>
+                                <div class="playlist-name">🎵 <%= pl.name %></div>
+                                <div class="playlist-meta">
+                                    📁 <%= pl.trackCount %> bài hát • File: <code><%= pl.fileName %></code>
+                                </div>
+                            </div>
+                            <div class="playlist-actions" onclick="event.stopPropagation()">
+                                <button class="btn btn-primary btn-sm" onclick="quickPlayPlaylist('<%= pl.name %>')">▶️ Phát Vào Voice</button>
+                                <button class="btn btn-ghost btn-sm" onclick="loadPlaylistDetails('<%= pl.name %>')">👁️ Xem & Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deletePlaylistPrompt('<%= pl.name %>')">🗑️</button>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Playlist Details Drawer (Mở ra khi click vào một playlist) -->
+        <div id="playlist-detail-card" class="card" style="display: none; border-color: var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <div class="section-title" id="pl-detail-title">📜 Chi Tiết Danh Sách: ...</div>
+                    <p id="pl-detail-meta" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Tổng số: 0 bài</p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-success btn-sm" onclick="playCurrentPlaylist('or')">▶️ Phát Vào Voice (Tuần tự)</button>
+                    <button class="btn btn-primary btn-sm" onclick="playCurrentPlaylist('dis')">🔀 Phát Xáo Trộn (Shuffle)</button>
+                    <button class="btn btn-ghost btn-sm" onclick="openBulkAddModal()">📋 Dán Nhiều Bài Cùng Lúc</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCurrentPlaylist()">🗑️ Xóa Playlist Này</button>
+                </div>
+            </div>
+
+            <!-- Add Track Form -->
+            <div style="background: rgba(10, 15, 29, 0.6); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                <form onsubmit="handleAddTrackToPlaylist(event)" style="display: flex; gap: 10px;">
+                    <input id="add-track-input" type="text" class="form-input" placeholder="Dán link YouTube / Spotify hoặc tên bài hát cần thêm vào playlist..." required>
+                    <button type="submit" class="btn btn-primary btn-sm" style="white-space: nowrap;">Thêm Bài</button>
+                </form>
+            </div>
+
+            <!-- Tracks Table -->
+            <div style="max-height: 480px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+                <table class="queue-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">STT</th>
+                            <th>Tên Bài Hát / Link</th>
+                            <th style="width: 60px;">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pl-tracks-tbody">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         PHẦN 3: HƯỚNG DẪN SỬ DỤNG ("bên trong có phần hướng dẫn")
+    ==================================================== -->
+    <div id="sec-guide" class="section-anchor">
+        <div class="section-header">
+            <div class="section-badge-title">
+                <div class="badge-num">3</div>
+                <div>
+                    <h2 class="section-title">📖 Hướng Dẫn Sử Dụng Bot & Mẹo Nghe Nhạc</h2>
+                    <p class="section-sub">Tổng hợp các lệnh Discord, hướng dẫn nghe nhạc mượt mà không quảng cáo và cách treo 24/7</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <!-- Guide 1: Lệnh Play -->
+            <div class="guide-card">
+                <div class="guide-icon">🎶</div>
+                <div class="guide-title">1. Phát Nhạc Siêu Tốc</div>
+                <div class="guide-desc">
+                    • Trên Discord: Gõ <span class="code-tag">/play &lt;tên bài hoặc link&gt;</span>. Có gợi ý tự động (Live Autocomplete) khi đang gõ.<br>
+                    • Trên Web: Dùng ô <strong>"Phát Nhạc Nhanh"</strong> ở Phần 1.<br>
+                    • Hỗ trợ: YouTube video, YouTube Mix, Spotify (Track, Album, Playlist công khai).
+                </div>
+            </div>
+
+            <!-- Guide 2: Treo Voice 24/7 -->
+            <div class="guide-card">
+                <div class="guide-icon">🔒</div>
+                <div class="guide-title">2. Treo Phòng Voice 24/7 Bất Tử</div>
+                <div class="guide-desc">
+                    • Trên Discord: Gõ <span class="code-tag">/treo on</span> hoặc <span class="code-tag">/join</span>.<br>
+                    • Trên Web: Bấm nút <strong>"Bật Treo 24/7"</strong> ở Phần 1.<br>
+                    • Bot sẽ tự động ở lại trong phòng 24/7, không tự rời phòng khi hết người và tự kết nối lại nếu bot restart.
+                </div>
+            </div>
+
+            <!-- Guide 3: Quản Lý Playlist -->
+            <div class="guide-card">
+                <div class="guide-icon">📚</div>
+                <div class="guide-title">3. Quản Lý Danh Sách Phát</div>
+                <div class="guide-desc">
+                    • Tạo playlist mới tại <strong>Phần 2 (Playlist Studio)</strong> trên web.<br>
+                    • Thêm bài lẻ hoặc dán 50-100 link cùng lúc bằng nút <strong>"Dán Nhiều Bài"</strong>.<br>
+                    • Phát trực tiếp bằng nút <strong>"Phát Vào Voice"</strong> trên web hoặc gõ <span class="code-tag">/playlist play &lt;tên&gt;</span> trên Discord.
+                </div>
+            </div>
+
+            <!-- Guide 4: Nút Điều Khiển -->
+            <div class="guide-card">
+                <div class="guide-icon">🎛️</div>
+                <div class="guide-title">4. Điều Khiển Bằng Nút Bấm</div>
+                <div class="guide-desc">
+                    • Tương tác trực tiếp bằng các nút bấm dưới Embed Discord hoặc trên Web Player:<br>
+                    • ⏸️ Tạm dừng • ▶️ Tiếp tục • ⏭️ Chuyển bài • ⏹️ Dừng phát • 🔁 Chế độ lặp • 🔀 Xáo trộn hàng đợi.
+                </div>
+            </div>
+
+            <!-- Guide 5: Xem Hàng Đợi -->
+            <div class="guide-card">
+                <div class="guide-icon">📜</div>
+                <div class="guide-title">5. Quản Lý Hàng Đợi (Queue)</div>
+                <div class="guide-desc">
+                    • Gõ lệnh <span class="code-tag">/queue</span> trên Discord hoặc xem bảng <strong>"Hàng Đợi Bài Hát"</strong> ở Phần 1.<br>
+                    • Có thể xóa từng bài trong hàng đợi bằng nút <span class="code-tag">✕</span> hoặc xóa sạch bằng nút <strong>"Xóa Hết"</strong>.
+                </div>
+            </div>
+
+            <!-- Guide 6: Chất Lượng Studio 320kbps -->
+            <div class="guide-card">
+                <div class="guide-icon">🎧</div>
+                <div class="guide-title">6. Âm Thanh Hi-Fi Studio</div>
+                <div class="guide-desc">
+                    • Bot chạy bằng luồng kép <strong>yt-dlp + ffmpeg</strong> mã hóa Opus 320kbps 48kHz stereo.<br>
+                    • Tự động chống giật lag, loại bỏ quảng cáo và chống ngắt kết nối đường truyền.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================
+         PHẦN 4: SOẠN & GỬI THÔNG BÁO EMBED (TÙY CHỌN)
+    ==================================================== -->
+    <div id="sec-embed" class="section-anchor">
+        <div class="section-header">
+            <div class="section-badge-title">
+                <div class="badge-num">4</div>
+                <div>
+                    <h2 class="section-title">📨 Soạn & Gửi Embed Thông Báo Vào Discord</h2>
+                    <p class="section-sub">Tạo tin nhắn thông báo màu sắc chuyên nghiệp gửi vào bất kỳ kênh text nào trong Server</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Form -->
+            <div class="card">
+                <form onsubmit="handleSendEmbed(event)">
+                    <div style="margin-bottom: 14px;">
+                        <label class="form-label">Chọn Kênh Text Nhận Tin:</label>
+                        <select id="embed-channel-select" class="form-select" required>
+                            <% guilds.forEach((g) => { %>
+                                <optgroup label="<%= g.name %>">
+                                    <% g.textChannels.forEach((tc) => { %>
+                                        <option value="<%= tc.id %>"># <%= tc.name %></option>
+                                    <% }) %>
+                                </optgroup>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="form-label">Tiêu Đề (Title):</label>
+                        <input id="embed-title" type="text" class="form-input" placeholder="Ví dụ: 🎵 THÔNG BÁO BẢO TRÌ NÂNG CẤP..." oninput="updateEmbedPreview()">
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label class="form-label">Nội Dung Chi Tiết (Description):</label>
+                        <textarea id="embed-desc" class="form-textarea" placeholder="Hỗ trợ Markdown: **in đậm**, *in nghiêng*, `code`..." oninput="updateEmbedPreview()"></textarea>
+                    </div>
+
+                    <div class="grid-2">
+                        <div style="margin-bottom: 14px;">
+                            <label class="form-label">Màu Sắc (Color):</label>
+                            <input id="embed-color" type="color" class="form-input" value="#5865f2" style="height: 44px; padding: 4px;" oninput="updateEmbedPreview()">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <label class="form-label">Tác Giả (Author):</label>
+                            <input id="embed-author" type="text" class="form-input" placeholder="Ví dụ: VNA Admin" oninput="updateEmbedPreview()">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div style="margin-bottom: 14px;">
+                            <label class="form-label">Ảnh Thumbnail (Góc phải):</label>
+                            <input id="embed-thumb" type="url" class="form-input" placeholder="https://..." oninput="updateEmbedPreview()">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <label class="form-label">Ảnh Lớn (Banner Image):</label>
+                            <input id="embed-image" type="url" class="form-input" placeholder="https://..." oninput="updateEmbedPreview()">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Gửi Embed Ngay Vào Kênh Discord</button>
+                </form>
+            </div>
+
+            <!-- Preview -->
+            <div class="card">
+                <div style="font-weight: 800; font-size: 15px; margin-bottom: 14px;">👁️ Xem Trước Trực Quan (Discord Live Preview)</div>
+                <div style="background: #313338; border-radius: 8px; padding: 18px; color: #dbdee1;">
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <img src="<%= botAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png' %>" style="width: 40px; height: 40px; border-radius: 50%;" alt="Bot">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-weight: 700; color: #ffffff;"><%= botName %></span>
+                                <span style="background: #5865f2; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px;">BOT</span>
+                            </div>
+                            <div style="font-size: 12px; color: #949ba4;">Hôm nay lúc <%= new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) %></div>
+                        </div>
+                    </div>
+
+                    <div id="preview-box" style="background: #2b2d31; border-left: 4px solid #5865f2; border-radius: 4px; padding: 14px; margin-left: 52px;">
+                        <div id="pv-author" style="font-size: 12.5px; font-weight: 700; color: #ffffff; margin-bottom: 6px; display: none;"></div>
+                        <div id="pv-title" style="font-size: 15.5px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Tiêu đề thông báo mẫu</div>
+                        <div id="pv-desc" style="font-size: 13.5px; line-height: 1.45; color: #dbdee1; margin-bottom: 10px;">Nội dung chi tiết thông báo sẽ hiển thị tại đây...</div>
+                        <img id="pv-image" src="" style="width: 100%; border-radius: 4px; margin-top: 10px; display: none;" alt="Preview Image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====================================================
+     MODALS
+==================================================== -->
+<!-- Modal Tạo Playlist Mới -->
+<div id="modal-create-playlist" class="modal-backdrop">
+    <div class="modal-content">
+        <div style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 10px;">➕ Tạo Danh Sách Phát Mới</div>
+        <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px;">
+            Nhập tên danh sách nhạc (ví dụ: <code>nhac_chill</code>, <code>vpop_hot</code>, <code>remix_gaming</code>).
+        </p>
+        <form onsubmit="handleModalCreatePlaylistSubmit(event)">
+            <div style="margin-bottom: 20px;">
+                <label class="form-label">Tên Playlist:</label>
+                <input id="create-pl-name-input" type="text" class="form-input" placeholder="Ví dụ: Nhạc Học Bài..." required autofocus>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modal-create-playlist')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Tạo Ngay ➕</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Thêm Bài Hàng Loạt (Bulk Add) -->
+<div id="modal-bulk-add" class="modal-backdrop">
+    <div class="modal-content">
+        <div style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 10px;">📋 Dán Bài Hát Hàng Loạt Vào Playlist</div>
+        <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px;">
+            Dán danh sách bài hát (mỗi dòng một tên bài hoặc đường link YouTube / Spotify):
+        </p>
+        <form onsubmit="handleBulkAddSubmit(event)">
+            <div style="margin-bottom: 20px;">
+                <textarea id="bulk-add-textarea" class="form-textarea" style="height: 180px;" placeholder="Bài hát 1&#10;https://www.youtube.com/watch?v=...&#10;https://open.spotify.com/track/...&#10;Bài hát 4" required></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modal-bulk-add')">Hủy</button>
+                <button type="submit" class="btn btn-primary">Lưu Tất Cả Vào Playlist</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ====================================================
+     FRONTEND JAVASCRIPT LOGIC
+==================================================== -->
+<script>
+    let currentGuildId = "";
+    let currentPlaylistName = "";
+    let loopModeState = "off";
+
+    window.addEventListener("DOMContentLoaded", () => {
+        onGuildSelectChange();
+        updateEmbedPreview();
+        setInterval(fetchLiveState, 3500);
+    });
+
+    function showToast(message, type = "info") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        const icon = type === "success" ? "✅" : type === "error" ? "❌" : "ℹ️";
+        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateX(100%)";
+            toast.style.transition = "all 0.3s ease";
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    function onGuildSelectChange() {
+        const select = document.getElementById("player-guild-select");
+        if (!select || !select.value) return;
+        currentGuildId = select.value;
+
+        const opt = select.options[select.selectedIndex];
+        const channels = JSON.parse(opt.getAttribute("data-channels") || "[]");
+        const is247 = opt.getAttribute("data-247") === "true";
+
+        const btn247 = document.getElementById("btn-toggle-247-top");
+        if (btn247) {
+            btn247.textContent = is247 ? "🔴 Tắt Treo 24/7" : "🔒 Bật Treo 24/7";
+            btn247.className = is247 ? "btn btn-danger btn-sm" : "btn btn-primary btn-sm";
+        }
+
+        const voiceSelect = document.getElementById("player-voice-select");
+        voiceSelect.innerHTML = "";
+
+        if (channels.length === 0) {
+            voiceSelect.innerHTML = `<option value="">(Không có kênh voice)</option>`;
+        } else {
+            channels.forEach(vc => {
+                const o = document.createElement("option");
+                o.value = vc.id;
+                o.textContent = `🔊 ${vc.name} (${vc.userCount} người)`;
+                voiceSelect.appendChild(o);
+            });
+        }
+
+        fetchLiveState();
+    }
+
+    async function fetchLiveState() {
+        try {
+            const res = await fetch("/api/music/state");
+            const data = await res.json();
+            if (!data.success) return;
+
+            const guild = data.guilds.find(g => g.id === currentGuildId);
+            if (!guild) return;
+
+            const q = guild.activeQueue;
+            const heroBox = document.getElementById("now-playing-box");
+            const npBadge = document.getElementById("np-badge");
+            const npTitle = document.getElementById("np-title");
+            const npArtist = document.getElementById("np-artist");
+            const npCover = document.getElementById("np-cover");
+            const npCurrentTime = document.getElementById("np-time-current");
+            const npTotalTime = document.getElementById("np-time-total");
+            const npFill = document.getElementById("np-progress-fill");
+            const loopBadge = document.getElementById("np-loop-badge");
+            const playBtn = document.getElementById("ctrl-play-btn");
+
+            if (q && q.isPlaying && q.currentTrack) {
+                heroBox.classList.add("playing");
+                npBadge.textContent = q.isPaused ? "⏸️ TẠM DỪNG" : "🟢 ĐANG PHÁT";
+                npBadge.style.color = q.isPaused ? "#f59e0b" : "#34d399";
+                npTitle.textContent = q.currentTrack.title;
+                npArtist.textContent = `${q.currentTrack.author} • Kênh #${q.voiceChannelName || 'voice'}`;
+                if (q.currentTrack.thumbnail) npCover.src = q.currentTrack.thumbnail;
+
+                const curSec = q.currentSec || 0;
+                const totSec = q.currentTrack.durationSec || 0;
+                npCurrentTime.textContent = formatSec(curSec);
+                npTotalTime.textContent = q.currentTrack.duration || formatSec(totSec);
+
+                if (totSec > 0) {
+                    const pct = Math.min(100, Math.round((curSec / totSec) * 100));
+                    npFill.style.width = `${pct}%`;
+                }
+
+                loopModeState = q.loopMode || "off";
+                loopBadge.textContent = `LẶP: ${loopModeState.toUpperCase()}`;
+                playBtn.textContent = q.isPaused ? "▶️" : "⏸️";
+
+                renderQueueTable(q.tracks || []);
+            } else {
+                heroBox.classList.remove("playing");
+                npBadge.textContent = "⚪ KHÔNG PHÁT";
+                npBadge.style.color = "#94a3b8";
+                npTitle.textContent = "Chưa có bài hát nào đang phát";
+                npArtist.textContent = "Chọn server và kênh voice để mở bài mới";
+                npCurrentTime.textContent = "00:00";
+                npTotalTime.textContent = "00:00";
+                npFill.style.width = "0%";
+                playBtn.textContent = "▶️";
+                renderQueueTable([]);
+            }
+        } catch (_) {}
+    }
+
+    function formatSec(sec) {
+        sec = Math.max(0, Math.floor(sec));
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function renderQueueTable(tracks) {
+        const tbody = document.getElementById("queue-tbody");
+        document.getElementById("queue-count").textContent = tracks.length;
+
+        if (tracks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-sub); padding: 30px;">Hàng đợi trống. Nhập bài hát để phát tiếp nối!</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = tracks.map((t, idx) => `
+            <tr>
+                <td class="queue-index">#${idx + 1}</td>
+                <td><strong>${t.title}</strong><div style="font-size: 11.5px; color: var(--text-sub);">${t.author || 'Nghệ sĩ'}</div></td>
+                <td><span style="font-family: var(--font-mono); font-size: 12px;">${t.duration || 'Live'}</span></td>
+                <td><button class="btn btn-danger btn-sm" style="padding: 2px 8px;" onclick="removeQueueTrack(${idx + 1})">✕</button></td>
+            </tr>
+        `).join("");
+    }
+
+    // Voice Join & Leave Actions
+    async function joinSelectedVoice() {
+        const voiceSelect = document.getElementById("player-voice-select");
+        const voiceChannelId = voiceSelect.value;
+        if (!currentGuildId || !voiceChannelId) return showToast("Vui lòng chọn Server và Kênh Voice!", "error");
+
+        try {
+            const res = await fetch("/api/voice/join", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ guild_id: currentGuildId, voice_channel_id: voiceChannelId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                fetchLiveState();
+            } else {
+                showToast(data.error || "Không thể vào voice", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    async function leaveSelectedVoice() {
+        if (!currentGuildId) return showToast("Vui lòng chọn Server!", "error");
+        try {
+            const res = await fetch("/api/voice/leave", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ guild_id: currentGuildId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                fetchLiveState();
+            } else {
+                showToast(data.error || "Không thể rời voice", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    async function toggle247FromVoiceHub() {
+        const select = document.getElementById("player-guild-select");
+        const opt = select.options[select.selectedIndex];
+        const is247 = opt.getAttribute("data-247") === "true";
+        const voiceSelect = document.getElementById("player-voice-select");
+        const voiceChannelId = voiceSelect.value;
+
+        showToast("Đang cập nhật trạng thái 24/7...", "info");
+        try {
+            const res = await fetch("/api/247/toggle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    guild_id: currentGuildId,
+                    voice_channel_id: voiceChannelId,
+                    enabled: !is247,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                setTimeout(() => location.reload(), 700);
+            } else {
+                showToast(data.error || "Thao tác thất bại", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    // Music Player Controls
+    async function controlMusic(action, extra = {}) {
+        if (!currentGuildId) return showToast("Vui lòng chọn Server!", "error");
+        try {
+            const res = await fetch("/api/music/control", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ guild_id: currentGuildId, action, ...extra }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                fetchLiveState();
+            } else {
+                showToast(data.error || "Thao tác thất bại", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    function togglePlayPause() {
+        const btn = document.getElementById("ctrl-play-btn");
+        const action = btn.textContent.includes("▶") ? "resume" : "pause";
+        controlMusic(action);
+    }
+
+    function cycleLoopMode() {
+        const modes = ["off", "track", "queue"];
+        const next = modes[(modes.indexOf(loopModeState) + 1) % modes.length];
+        controlMusic("loop", { mode: next });
+    }
+
+    function removeQueueTrack(index) {
+        controlMusic("remove_track", { index });
+    }
+
+    function clearQueue() {
+        if (!confirm("Bạn có chắc muốn xóa sạch toàn bộ hàng đợi?")) return;
+        controlMusic("clear_queue");
+    }
+
+    async function handleQuickPlay(e) {
+        e.preventDefault();
+        const input = document.getElementById("quick-play-input");
+        const voiceSelect = document.getElementById("player-voice-select");
+        const query = input.value.trim();
+        const voiceChannelId = voiceSelect.value;
+
+        if (!currentGuildId || !voiceChannelId) {
+            return showToast("Vui lòng chọn Server và Kênh Voice trước!", "error");
+        }
+
+        showToast("Đang tìm nạp và phát bài hát...", "info");
+        try {
+            const res = await fetch("/api/music/play", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    guild_id: currentGuildId,
+                    voice_channel_id: voiceChannelId,
+                    query,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                input.value = "";
+                fetchLiveState();
+            } else {
+                showToast(data.error || "Không thể phát bài hát", "error");
+            }
+        } catch (_) { showToast("Lỗi máy chủ", "error"); }
+    }
+
+    // Playlist Management Logic
+    function openCreatePlaylistModal() {
+        document.getElementById("modal-create-playlist").classList.add("active");
+        document.getElementById("create-pl-name-input").focus();
+    }
+
+    function openBulkAddModal() {
+        if (!currentPlaylistName) return showToast("Vui lòng chọn Playlist trước!", "error");
+        document.getElementById("modal-bulk-add").classList.add("active");
+        document.getElementById("bulk-add-textarea").focus();
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove("active");
+    }
+
+    async function handleInlineCreatePlaylist(e) {
+        e.preventDefault();
+        const input = document.getElementById("inline-pl-name");
+        const name = input.value.trim();
+        if (!name) return;
+
+        try {
+            const res = await fetch("/api/playlists/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(`Đã tạo playlist "${name}" thành công!`, "success");
+                input.value = "";
+                setTimeout(() => location.reload(), 700);
+            } else {
+                showToast(data.error || "Không thể tạo playlist", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    async function handleModalCreatePlaylistSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById("create-pl-name-input").value.trim();
+        if (!name) return;
+
+        try {
+            const res = await fetch("/api/playlists/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(`Đã tạo playlist "${name}" thành công!`, "success");
+                closeModal("modal-create-playlist");
+                setTimeout(() => location.reload(), 700);
+            } else {
+                showToast(data.error || "Không thể tạo playlist", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    async function loadPlaylistDetails(name) {
+        currentPlaylistName = name;
+        const detailCard = document.getElementById("playlist-detail-card");
+        detailCard.style.display = "block";
+        detailCard.scrollIntoView({ behavior: "smooth" });
+
+        document.getElementById("pl-detail-title").textContent = `📜 Chi Tiết Danh Sách: ${name}`;
+
+        try {
+            const res = await fetch(`/api/playlists/${encodeURIComponent(name)}`);
+            const data = await res.json();
+            if (!data.success) return showToast("Không thể tải chi tiết playlist", "error");
+
+            const pl = data.playlist;
+            document.getElementById("pl-detail-meta").textContent = `Tổng số bài: ${pl.totalTracks} • Ngày tạo: ${pl.createdAt}`;
+
+            const tbody = document.getElementById("pl-tracks-tbody");
+            if (pl.tracks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-sub); padding: 30px;">Danh sách chưa có bài hát nào! Nhập link bên trên để thêm bài.</td></tr>`;
+            } else {
+                tbody.innerHTML = pl.tracks.map(t => `
+                    <tr>
+                        <td class="queue-index">#${t.index}</td>
+                        <td><code>${t.query}</code></td>
+                        <td><button class="btn btn-danger btn-sm" style="padding: 2px 8px;" onclick="removePlaylistTrack('${t.index}')">✕</button></td>
+                    </tr>
+                `).join("");
+            }
+        } catch (_) { showToast("Lỗi khi tải playlist", "error"); }
+    }
+
+    async function handleAddTrackToPlaylist(e) {
+        e.preventDefault();
+        if (!currentPlaylistName) return;
+        const input = document.getElementById("add-track-input");
+        const song = input.value.trim();
+        if (!song) return;
+
+        try {
+            const res = await fetch("/api/playlists/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: currentPlaylistName, song }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(data.message, "success");
+                input.value = "";
+                loadPlaylistDetails(currentPlaylistName);
+            } else {
+                showToast(data.error || "Không thể thêm bài", "error");
+            }
+        } catch (_) { showToast("Lỗi khi thêm bài", "error"); }
+    }
+
+    async function handleBulkAddSubmit(e) {
+        e.preventDefault();
+        if (!currentPlaylistName) return;
+        const text = document.getElementById("bulk-add-textarea").value.trim();
+        if (!text) return;
+
+        try {
+            const res = await fetch("/api/playlists/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: currentPlaylistName, songs: text }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(data.message, "success");
+                closeModal("modal-bulk-add");
+                document.getElementById("bulk-add-textarea").value = "";
+                loadPlaylistDetails(currentPlaylistName);
+            } else {
+                showToast(data.error || "Lỗi lưu danh sách", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    async function removePlaylistTrack(index) {
+        if (!currentPlaylistName) return;
+        try {
+            const res = await fetch("/api/playlists/remove", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: currentPlaylistName, index }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(data.message, "success");
+                loadPlaylistDetails(currentPlaylistName);
+            } else {
+                showToast(data.error || "Không thể xóa bài", "error");
+            }
+        } catch (_) { showToast("Lỗi khi xóa bài", "error"); }
+    }
+
+    async function deletePlaylistPrompt(name) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn playlist "${name}"?`)) return;
+        try {
+            const res = await fetch("/api/playlists/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showToast(data.message, "success");
+                setTimeout(() => location.reload(), 600);
+            } else {
+                showToast(data.error || "Không thể xóa playlist", "error");
+            }
+        } catch (_) { showToast("Lỗi khi xóa playlist", "error"); }
+    }
+
+    function deleteCurrentPlaylist() {
+        if (currentPlaylistName) deletePlaylistPrompt(currentPlaylistName);
+    }
+
+    function quickPlayPlaylist(name) {
+        currentPlaylistName = name;
+        playCurrentPlaylist('or');
+    }
+
+    async function playCurrentPlaylist(mode = "or") {
+        if (!currentPlaylistName) return showToast("Vui lòng chọn Playlist!", "error");
+        const voiceSelect = document.getElementById("player-voice-select");
+        const voiceChannelId = voiceSelect.value;
+
+        if (!currentGuildId || !voiceChannelId) {
+            return showToast("Vui lòng chọn Server và Kênh Voice ở Phần 1 trước!", "error");
+        }
+
+        showToast(`Đang phát playlist "${currentPlaylistName}"...`, "info");
+        try {
+            const res = await fetch("/api/playlists/play", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    guild_id: currentGuildId,
+                    voice_channel_id: voiceChannelId,
+                    playlist_name: currentPlaylistName,
+                    mode,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+                document.getElementById("sec-voice").scrollIntoView({ behavior: "smooth" });
+                fetchLiveState();
+            } else {
+                showToast(data.error || "Không thể phát playlist", "error");
+            }
+        } catch (_) { showToast("Lỗi kết nối", "error"); }
+    }
+
+    // Embed Dispatcher
+    function updateEmbedPreview() {
+        const title = document.getElementById("embed-title").value.trim();
+        const desc = document.getElementById("embed-desc").value.trim();
+        const color = document.getElementById("embed-color").value;
+        const author = document.getElementById("embed-author").value.trim();
+        const image = document.getElementById("embed-image").value.trim();
+
+        const pvBox = document.getElementById("preview-box");
+        const pvTitle = document.getElementById("pv-title");
+        const pvDesc = document.getElementById("pv-desc");
+        const pvAuthor = document.getElementById("pv-author");
+        const pvImage = document.getElementById("pv-image");
+
+        pvBox.style.borderLeftColor = color;
+        pvTitle.textContent = title || "Tiêu đề thông báo mẫu";
+        pvDesc.textContent = desc || "Nội dung chi tiết thông báo sẽ hiển thị tại đây...";
+
+        if (author) {
+            pvAuthor.textContent = author;
+            pvAuthor.style.display = "block";
+        } else { pvAuthor.style.display = "none"; }
+
+        if (image && image.startsWith("http")) {
+            pvImage.src = image;
+            pvImage.style.display = "block";
+        } else { pvImage.style.display = "none"; }
+    }
+
+    async function handleSendEmbed(e) {
+        e.preventDefault();
+        const channel_id = document.getElementById("embed-channel-select").value;
+        const title = document.getElementById("embed-title").value;
+        const description = document.getElementById("embed-desc").value;
+        const color = document.getElementById("embed-color").value;
+        const author_name = document.getElementById("embed-author").value;
+        const thumbnail_url = document.getElementById("embed-thumb").value;
+        const image_url = document.getElementById("embed-image").value;
+
+        showToast("Đang gửi Embed vào Discord...", "info");
+        try {
+            const res = await fetch("/api/embed/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    channel_id,
+                    title,
+                    description,
+                    color,
+                    author_name,
+                    thumbnail_url,
+                    image_url,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, "success");
+            } else {
+                showToast(data.error || "Gửi Embed thất bại", "error");
+            }
+        } catch (_) { showToast("Lỗi máy chủ", "error"); }
+    }
+</script>
+</body>
+</html>

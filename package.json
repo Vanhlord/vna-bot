@@ -1,0 +1,41 @@
+{
+  "name": "vna-music-bot",
+  "version": "1.0.0",
+  "description": "Commercial-grade, high-performance, 5-star Discord Music Bot with Hybrid Audio Resolver (play-dl + yt-dlp) and Autocomplete /play.",
+  "main": "index.js",
+  "packageManager": "npm@10.0.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "postinstall": "node scripts/postinstall.js",
+    "test": "node scripts/test-lifecycle.js && node scripts/test-discord-resilience.js && node scripts/test-spotify.js"
+  },
+  "keywords": [
+    "discord-music-bot",
+    "discord-bot",
+    "play-dl",
+    "yt-dlp",
+    "music-bot",
+    "discordjs-v14",
+    "voice-bot"
+  ],
+  "author": "VNA Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/voice": "^0.19.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.3.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "ffmpeg-static": "^5.3.0",
+    "opusscript": "^0.0.8",
+    "play-dl": "^1.9.7",
+    "spotify-url-info": "^3.3.3",
+    "undici": "^6.23.0",
+    "ws": "^8.18.0",
+    "yt-dlp-exec": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
