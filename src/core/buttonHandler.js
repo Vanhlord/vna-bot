@@ -225,23 +225,31 @@ async function handleMusicInteraction(interaction, musicManager) {
 
     // 1.4. Mở Menu chọn Playlist để THÊM nhạc vào
     if (customId === "music_btn_add_to_playlist") {
-      const playlists = PlaylistService.listPlaylists();
-      if (!playlists || playlists.length === 0) {
+      const allPlaylists = PlaylistService.listPlaylists();
+      const adminIds = (process.env.ADMIN_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+      const isAdmin = adminIds.includes(interaction.user.id);
+
+      // Chỉ hiển thị playlist của chính người dùng (hoặc tất cả nếu là admin)
+      const userPlaylists = allPlaylists.filter(
+        (pl) => isAdmin || (pl.creatorId && String(pl.creatorId) === String(interaction.user.id))
+      );
+
+      if (userPlaylists.length === 0) {
         return interaction.reply({
-          content: "❌ Chưa có danh sách nhạc nào trên máy chủ để thêm bài. Bạn hãy tạo playlist trước!",
+          content: "❌ Bạn chưa có danh sách nhạc nào của riêng mình trên máy chủ.\n💡 Hãy truy cập trang web `/voice` để tạo playlist của bạn trước nhé!",
           ephemeral: true,
         });
       }
 
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId("music_select_playlist_to_add")
-        .setPlaceholder("➕ Chọn playlist muốn thêm bài hát vào...")
+        .setPlaceholder("➕ Chọn playlist của bạn để thêm bài hát...")
         .addOptions(
-          playlists.slice(0, 25).map((pl) => {
+          userPlaylists.slice(0, 25).map((pl) => {
             const count = Number(pl.trackCount ?? pl.count ?? pl.totalTracks ?? (Array.isArray(pl.tracks) ? pl.tracks.length : 0));
             return {
               label: pl.name.slice(0, 100),
-              description: `${count} bài hát`,
+              description: `Của bạn • ${count} bài hát`,
               value: pl.name,
               emoji: "➕",
             };
@@ -249,7 +257,7 @@ async function handleMusicInteraction(interaction, musicManager) {
         );
 
       return interaction.reply({
-        content: "📝 **Thêm Bài Hát Vào Playlist:** Chọn danh sách muốn thêm bài:",
+        content: "📝 **Thêm Bài Hát Vào Playlist Cá Nhân:** Chọn danh sách của bạn muốn thêm bài:",
         components: [new ActionRowBuilder().addComponents(selectMenu)],
         ephemeral: true,
       });
@@ -390,6 +398,16 @@ async function handleMusicInteraction(interaction, musicManager) {
       }
 
       await interaction.deferReply({ ephemeral: true });
+
+      const adminIds = (process.env.ADMIN_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+      const isAdmin = adminIds.includes(interaction.user.id);
+      const perm = PlaylistService.checkPlaylistPermission(playlistName, interaction.user.id, isAdmin);
+      if (!perm.ok) {
+        return interaction.editReply({
+          content: `❌ ${perm.error}`,
+        });
+      }
+
       const result = PlaylistService.addTrackToPlaylist(playlistName, link);
       if (result.ok) {
         return interaction.editReply({

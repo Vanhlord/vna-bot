@@ -26,7 +26,7 @@ const remotePlaylistCache = {
 async function syncPlaylistsFromMainBot() {
   if (!MAIN_BOT_API_URL) return;
   try {
-    const res = await fetch(`${MAIN_BOT_API_URL}/api/playlists`, { signal: AbortSignal.timeout(6000) });
+    const res = await fetch(`${MAIN_BOT_API_URL}/api/playlists?all=true`, { signal: AbortSignal.timeout(6000) });
     if (!res.ok) return;
     const data = await res.json();
     if (data.success && Array.isArray(data.playlists)) {
@@ -37,6 +37,8 @@ async function syncPlaylistsFromMainBot() {
           count,
           trackCount: count,
           totalTracks: count,
+          creatorId: pl.creatorId || null,
+          creatorName: pl.creatorName || "Thành viên",
         };
       });
       for (const pl of data.playlists) {
@@ -112,7 +114,29 @@ function getPlaylistFilePath(name) {
   return path.join(MUSICLIST_DIR, `${safeName}.txt`);
 }
 
-function createPlaylist(name) {
+function checkPlaylistPermission(name, userId, isAdmin = false) {
+  if (isAdmin) {
+    const details = getPlaylistDetails(name);
+    return { ok: true, details };
+  }
+  if (!userId) {
+    return { ok: false, error: "Bạn chưa đăng nhập hoặc không xác định được danh tính." };
+  }
+  const details = getPlaylistDetails(name);
+  if (!details) {
+    return { ok: false, error: "Playlist không tồn tại." };
+  }
+  if (!details.creatorId || String(details.creatorId) === String(userId)) {
+    return { ok: true, details };
+  }
+  return {
+    ok: false,
+    error: `Bạn không có quyền chỉnh sửa playlist này (thuộc sở hữu của ${details.creatorName || "thành viên khác"}).`,
+    details,
+  };
+}
+
+function createPlaylist(name, owner = null) {
   ensureMusiclistDir();
   const safeName = sanitizePlaylistName(name);
   if (!safeName) {
@@ -124,13 +148,24 @@ function createPlaylist(name) {
     return { ok: false, error: `Danh sách **${safeName}** đã tồn tại từ trước!` };
   }
 
+  const creatorId = owner?.id || "";
+  const creatorName = owner?.displayName || owner?.username || "";
+
   try {
-    fs.writeFileSync(
+    let header = `# Playlist: ${safeName}\n`;
+    if (creatorId) header += `# CreatorId: ${creatorId}\n`;
+    if (creatorName) header += `# CreatorName: ${creatorName}\n`;
+    header += `# Ngày tạo: ${new Date().toLocaleString("vi-VN")}\n\n`;
+
+    fs.writeFileSync(filePath, header, "utf8");
+    return {
+      ok: true,
+      name: safeName,
+      creatorId,
+      creatorName,
       filePath,
-      `# Playlist: ${safeName}\n# Ngày tạo: ${new Date().toLocaleString("vi-VN")}\n\n`,
-      "utf8"
-    );
-    return { ok: true, name: safeName, filePath, message: `Đã tạo danh sách **${safeName}** thành công!` };
+      message: `Đã tạo danh sách **${safeName}** thành công!`,
+    };
   } catch (err) {
     return { ok: false, error: `Lỗi khi tạo file: ${err.message}` };
   }
@@ -273,11 +308,17 @@ function getPlaylistDetails(name) {
       const content = fs.readFileSync(filePath, "utf8");
       const lines = content.split(/\r?\n/);
       let createdAt = "Không rõ";
+      let creatorId = null;
+      let creatorName = null;
       const tracks = [];
 
       for (const line of lines) {
         const trimmed = line.trim();
-        if (trimmed.startsWith("# Ngày tạo:")) {
+        if (trimmed.startsWith("# CreatorId:")) {
+          creatorId = trimmed.replace("# CreatorId:", "").trim();
+        } else if (trimmed.startsWith("# CreatorName:")) {
+          creatorName = trimmed.replace("# CreatorName:", "").trim();
+        } else if (trimmed.startsWith("# Ngày tạo:")) {
           createdAt = trimmed.replace("# Ngày tạo:", "").trim();
         } else if (trimmed.length > 0 && !trimmed.startsWith("#")) {
           tracks.push({
@@ -287,8 +328,17 @@ function getPlaylistDetails(name) {
         }
       }
 
+      if (!creatorId) {
+        const adminIds = (process.env.ADMIN_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+        creatorId = adminIds[0] || "999830214198710324";
+        creatorName = creatorName || safeName;
+      }
+
       return {
         name: safeName,
+        fileName: `${safeName}.txt`,
+        creatorId,
+        creatorName: creatorName || "Thành viên",
         createdAt,
         totalTracks: tracks.length,
         tracks,
@@ -302,24 +352,33 @@ function getPlaylistDetails(name) {
   return remotePlaylistCache.details.get(safeName) || null;
 }
 
-function listPlaylists() {
+function listPlaylists(filterUserId = null) {
   ensureMusiclistDir();
   try {
     if (fs.existsSync(MUSICLIST_DIR)) {
       const files = fs.readdirSync(MUSICLIST_DIR).filter((f) => f.toLowerCase().endsWith(".txt"));
       if (files.length > 0) {
-        return files.map((fileName) => {
+        const list = files.map((fileName) => {
           const name = fileName.slice(0, -4);
-          const tracks = getPlaylistTracks(name);
-          const count = tracks.length;
+          const details = getPlaylistDetails(name);
+          const tracks = details ? details.tracks : [];
+          const count = details ? details.totalTracks : tracks.length;
           return {
             name,
             fileName,
             count,
             trackCount: count,
             totalTracks: count,
+            creatorId: details?.creatorId || null,
+            creatorName: details?.creatorName || "Thành viên",
+            createdAt: details?.createdAt || "Không rõ",
           };
         });
+
+        if (filterUserId) {
+          return list.filter((pl) => String(pl.creatorId) === String(filterUserId));
+        }
+        return list;
       }
     }
   } catch (err) {
@@ -327,7 +386,11 @@ function listPlaylists() {
   }
 
   // Fallback từ remote cache khi chạy trên hosting
-  return remotePlaylistCache.lists;
+  const cachedLists = remotePlaylistCache.lists;
+  if (filterUserId) {
+    return cachedLists.filter((pl) => String(pl.creatorId) === String(filterUserId));
+  }
+  return cachedLists;
 }
 
 function deletePlaylist(name) {
@@ -398,6 +461,7 @@ module.exports = {
   ensureMusiclistDir,
   sanitizePlaylistName,
   findActualPlaylistName,
+  checkPlaylistPermission,
   createPlaylist,
   addTrackToPlaylist,
   batchAddTracks,
